@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Buddy | Track Every Rand</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Protea decorative elements -->
+    <div class="protea-icon" style="top: 10%; left: 5%; font-size: 8rem;">🌸</div>
+    <div class="protea-icon" style="bottom: 15%; right: 5%; font-size: 10rem;">🌸</div>
+    
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="header-font text-4xl md:text-5xl font-black mb-2 text-[#014421]">
+                Budget Buddy
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 mb-6">
+                Track every Rand. Spend with Purpose.
+            </p>
+            
+            <!-- Greeting in isiXhosa/Zulu -->
+            <div class="greeting bg-[#FFD700] text-[#014421] inline-block px-6 py-2 rounded-full font-bold mb-6">
+                Sawubona! Let's track your spending.
+            </div>
+            
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-md border-t-4 border-[#014421]">
+                    <h3 class="text-sm font-semibold text-gray-500">Total Expenses</h3>
+                    <p class="text-2xl font-bold text-[#014421]" id="total-expenses">R0.00</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border-t-4 border-[#FFD700]">
+                    <h3 class="text-sm font-semibold text-gray-500">This Month</h3>
+                    <p class="text-2xl font-bold text-[#014421]" id="monthly-expenses">R0.00</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border-t-4 border-[#014421]">
+                    <h3 class="text-sm font-semibold text-gray-500">Categories</h3>
+                    <p class="text-2xl font-bold text-[#014421]" id="category-count">0</p>
+                </div>
+            </div>
+            
+            <!-- Visualizations -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <h2 class="header-font text-2xl text-[#014421] mb-4">Spending Overview</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-3">By Category</h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-3">Monthly Trend</h3>
+                        <div class="chart-container">
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main>
+            <!-- Add Expense Form -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8 slide-in">
+                <h2 class="header-font text-2xl text-[#014421] mb-4">Add New Expense</h2>
+                <form id="expense-form" class="space-y-4">
+                    <input type="hidden" id="edit-id" value="">
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <input type="text" id="description" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#014421] focus:border-transparent"
+                            placeholder="What did you spend on?">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Amount (R)</label>
+                            <input type="number" id="amount" min="0.01" step="0.01" required 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#014421] focus:border-transparent"
+                                placeholder="0.00">
+                        </div>
+                        
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="category" required 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#014421] focus:border-transparent">
+                                <option value="">Select a category</option>
+                                <option value="Food">Food</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input type="date" id="date" required 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#014421] focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button type="button" id="cancel-edit" class="btn-secondary px-6 py-2 rounded-md font-semibold hidden">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary px-6 py-2 rounded-md font-semibold">
+                            <i class="fas fa-plus-circle mr-2"></i> <span id="submit-text">Add Expense</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Expense List -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="header-font text-2xl text-[#014421]">Your Expenses</h2>
+                    
+                    <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                        <div class="relative w-full md:w-48">
+                            <select id="filter-category" 
+                                class="appearance-none bg-white w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#014421] focus:border-transparent">
+                                <option value="all">All Categories</option>
+                                <option value="Food">Food</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="relative w-full md:w-48">
+                            <select id="filter-month" 
+                                class="appearance-none bg-white w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#014421] focus:border-transparent">
+                                <option value="all">All Months</option>
+                                <!-- Months will be populated dynamically -->
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="expense-list" class="space-y-3">
+                    <!-- Expenses will be added here dynamically -->
+                    <div class="text-center py-10 text-gray-500" id="no-expenses">
+                        <i class="fas fa-coins text-4xl mb-3 text-[#FFD700]"></i>
+                        <p>No expenses yet. Add your first expense to get started!</p>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="flex justify-between items-center mt-6" id="pagination-controls" style="display: none;">
+                    <button id="prev-page" class="btn-secondary px-4 py-2 rounded-md font-semibold text-sm disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-left mr-1"></i> Previous
+                    </button>
+                    <span id="page-info" class="text-sm text-gray-600">Page 1 of 1</span>
+                    <button id="next-page" class="btn-secondary px-4 py-2 rounded-md font-semibold text-sm disabled:opacity-50" disabled>
+                        Next <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-600 text-sm">
+            <p>Budget Buddy - Made with <i class="fas fa-heart text-red-500"></i> in South Africa</p>
+            <p class="mt-1">Your data is stored locally in your browser</p>
+            <div class="mt-4 flex justify-center gap-4">
+                <button id="export-data" class="text-[#014421] hover:underline">
+                    <i class="fas fa-file-export mr-1"></i> Export Data
+                </button>
+                <button id="import-data" class="text-[#014421] hover:underline">
+                    <i class="fas fa-file-import mr-1"></i> Import Data
+                </button>
+                <button id="reset-data" class="text-red-600 hover:underline">
+                    <i class="fas fa-trash-alt mr-1"></i> Reset Data
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="export-modal">
+        <div class="modal-content">
+            <h3 class="header-font text-xl text-[#014421] mb-4">Export Expense Data</h3>
+            <p class="mb-4">Copy the data below to save it elsewhere:</p>
+            <textarea id="export-data-text" class="w-full h-40 p-2 border border-gray-300 rounded mb-4" readonly></textarea>
+            <div class="flex justify-end gap-3">
+                <button id="copy-export" class="btn-secondary px-4 py-2 rounded-md font-semibold text-sm">
+                    <i class="fas fa-copy mr-1"></i> Copy
+                </button>
+                <button id="close-export" class="btn-primary px-4 py-2 rounded-md font-semibold text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal" id="import-modal">
+        <div class="modal-content">
+            <h3 class="header-font text-xl text-[#014421] mb-4">Import Expense Data</h3>
+            <p class="mb-4">Paste your previously exported data below:</p>
+            <textarea id="import-data-text" class="w-full h-40 p-2 border border-gray-300 rounded mb-4"></textarea>
+            <div class="flex justify-end gap-3">
+                <button id="cancel-import" class="btn-secondary px-4 py-2 rounded-md font-semibold text-sm">
+                    Cancel
+                </button>
+                <button id="confirm-import" class="btn-primary px-4 py-2 rounded-md font-semibold text-sm">
+                    Import
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal" id="reset-modal">
+        <div class="modal-content">
+            <h3 class="header-font text-xl text-[#014421] mb-4">Confirm Reset</h3>
+            <p class="mb-4">Are you sure you want to delete all your expense data? This cannot be undone.</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancel-reset" class="btn-secondary px-4 py-2 rounded-md font-semibold text-sm">
+                    Cancel
+                </button>
+                <button id="confirm-reset" class="bg-red-600 text-white px-4 py-2 rounded-md font-semibold text-sm hover:bg-red-700">
+                    Delete All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="modal" id="loading-modal">
+        <div class="modal-content flex flex-col items-center justify-center">
+            <div class="spinner mb-4"></div>
+            <p>Processing your data...</p>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
