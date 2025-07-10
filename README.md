@@ -87,8 +87,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Project Maintainer: [Your Name]  
-Email: your.email@example.com  
+Project Maintainer: [Sinoyolo Ngavu]  
+Email: geminiyung1@gmail.com 
 Project Link: [(https://github.com/sinoyolongavu/Budget-buddy)]
 
 ---
